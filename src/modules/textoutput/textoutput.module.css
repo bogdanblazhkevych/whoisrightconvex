@@ -1,0 +1,87 @@
+.textoutputwrapper{
+    /* box-sizing: border-box;
+    border: 1px solid red; */
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+    background: var(--backdrop-color);
+    /* margin-bottom: 5rem; */
+}
+
+.textoutputwrapper::-webkit-scrollbar{
+    width: 2px;
+}
+
+.textoutputwrapper::-webkit-scrollbar-thumb{
+    background: rgb(186,186,192,1);
+}
+
+.textoutputwrapper::-webkit-scrollbar-track-piece:end {
+    background: transparent;
+    margin-bottom: 4rem; 
+}
+
+.textoutputwrapper::-webkit-scrollbar-track-piece:start {
+    background: transparent;
+    margin-top: 10px;
+}
+
+.message{
+    border-radius: 20px;
+    padding: 8px 15px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+    max-width: 70%;
+}
+.system{
+    max-width: 100%;
+    font-size: 80%;
+    color: #939393;
+}
+
+.incomming{
+    background-color: var(--text-grey-color);
+    color: var(--text-color);
+    align-self: flex-start;
+    text-align: left;
+    border-radius: 20px 20px 20px 0px;
+}
+
+.mediator{
+    background-color: var(--text-purple-color);
+    color: var(--text-color);
+    align-self: flex-start;
+    text-align: left;
+    border-radius: 20px 20px 20px 0px;
+}
+
+.outgoing{
+    color: #E1E1E3;
+    background-color: #148AFF;
+    align-self: flex-end;
+    text-align: left;
+    border-radius: 20px 20px 0px 20px;
+}
+
+.sender{
+    color: var(--sender-label-color);
+    font-size: 50%;
+}
+
+.senderincomming{
+    text-align: left;
+}
+
+.senderoutgoing{
+    text-align: right;
+}
+
+.sendermediator{
+    text-align: left;
+}
+

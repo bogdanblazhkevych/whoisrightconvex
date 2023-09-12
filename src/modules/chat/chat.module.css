@@ -1,0 +1,17 @@
+.chatwrapper{
+    /* box-sizing: border-box;
+    border: 1px solid red; */
+    position: absolute;
+    top: 0;
+    left: 50;
+    right: 50;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.test{
+    position: relative;
+    width: 100%;
+}
