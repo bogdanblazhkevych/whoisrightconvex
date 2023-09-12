@@ -6,38 +6,57 @@ import { api } from "./_generated/api";
 import { v } from 'convex/values';
 
 export const getSessionId = action({
-    args: {},
-    handler: async (ctx) => {
+    args: { displayName: v.string() },
+    handler: async (ctx, { displayName }) => {
+        //generates a 6 digit session id
         const sessionId = generateCode();
+        //adds a room to the room table with its session id
         await ctx.runMutation(api.room.addSessionId, {
             sessionId: sessionId
         });
-        return sessionId
+        //adds user to user table
+        let userId: string = await ctx.runMutation(api.room.addUser, {
+            displayName: displayName,
+            sessionId: sessionId
+        })
+        //sends sessionId and userId to client
+        return {
+            sessionId: sessionId,
+            userId: userId
+        }
     }
 })
 
-//if findRoom
-//return roomID 
-//set isOpen to false
-
 export const validateSessionId = action({
-    args: { sessionId: v.string()},
-    handler: async (ctx, { sessionId }) => {
+    args: { sessionId: v.string(), displayName: v.string() },
+    handler: async (ctx, { sessionId, displayName }) => {
         try {
+            //check if room is open / valic
             const isRoomOpen = await ctx.runQuery(api.room.findRoom, {
                 sessionId: sessionId
             });
+            //closes room if room is valid
             await ctx.runMutation(api.room.closeRoom, {
                 sessionId: sessionId
             })
+            //adds user to user table
+            let userId: string = await ctx.runMutation(api.room.addUser, {
+                displayName: displayName,
+                sessionId: sessionId
+            })
+            //add display name to room participants array
             return {
                 validated: true,
-                data: sessionId
+                sessionId: sessionId,
+                userId: userId,
+                error: "no errors"
             }
         } catch (error) {
             return {
                 validated: false,
-                data: "something went wrong"
+                sessionId: 'no session id',
+                userId: 'no user id',
+                error: "something went wrong"
             }
         }
     }

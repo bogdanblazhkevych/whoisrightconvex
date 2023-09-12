@@ -4,16 +4,9 @@ import { LiaInfoCircleSolid, LiaTimesCircle } from "react-icons/lia";
 
 interface ChatDetailsPropsInterface {
     chatData: {
-        sessionId: string,
-        host: {
-          displayName: string,
-          userId: string
-        }
-        guest: {
-          displayName: string,
-          userId: string
-        }
-    }
+        sessionId: string;
+        users: any[];
+    } | undefined
 }
 
 export default function ChatDetails(props: ChatDetailsPropsInterface){
@@ -49,17 +42,17 @@ export default function ChatDetails(props: ChatDetailsPropsInterface){
                 </div>
                 <div className={chatdetailscss.iconswrapper}>
                     <div className={chatdetailscss.usericon}>
-                        {chatData.host.displayName[0].toUpperCase()}
+                        {chatData ? chatData.users[0][0].toUpperCase() : "X"}
                     </div>
                     <div className={`${chatdetailscss.usericon} ${chatdetailscss.usericonmediator}`}>
                         M
                     </div>
                     <div className={chatdetailscss.usericon}>
-                        {chatData.guest.displayName[0].toUpperCase()}
+                        {chatData ? chatData.users[1][0].toUpperCase() : "X"}
                     </div>
                 </div>
                 <div className={chatdetailscss.sessionid}>
-                    {chatData.sessionId}
+                    {chatData ? chatData.sessionId : "idk"}
                 </div>
             </div>
         </div>

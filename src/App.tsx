@@ -24,9 +24,11 @@ type userType = "guest" | "host"
  
 function App() {
   // const [currentDisplay, setCurrentDisplay] = useState('find-session');
-  const [sessionId, setSessionId] = useState<string>('');
   const [userType, setUserType] = useState<userType>('guest');
-
+  
+  const [sessionId, setSessionId] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [userId, setUserId] = useState('');
   const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
 
   const [chatData, setChatData] = useState<ChatDataInterface>({
@@ -49,14 +51,22 @@ function App() {
                 setChatData={setChatData} 
                 setUserType={setUserType}
                 sessionId={sessionId}
-                setSessionId={setSessionId}/>
+                setSessionId={setSessionId}
+                displayName={displayName}
+                setDisplayName={setDisplayName}
+                userId={userId}
+                setUserId={setUserId}/>
       </>
       }
 
       {chatRoomActive && 
         <>
           <About />
-          <Chat chatData={chatData} userType={userType}/>
+          <Chat chatData={chatData} 
+                userType={userType}
+                sessionId={sessionId}
+                displayName={displayName}
+                userId={userId}/>
         </>
       }
     </div>

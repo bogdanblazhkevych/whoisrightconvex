@@ -10,7 +10,8 @@ interface ChatMessageInterface {
 }
 
 interface TextoutputInterface {
-    messageLog: ChatMessageInterface[];
+    // messageLog: ChatMessageInterface[];
+    messageLog: any[] | undefined;
 }
 
 export default function Textoutput(props: TextoutputInterface) {
@@ -18,6 +19,7 @@ export default function Textoutput(props: TextoutputInterface) {
     const textOutputWrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        console.log(messageLog)
         if (textOutputWrapperRef.current) {
             textOutputWrapperRef.current.scrollTop = textOutputWrapperRef.current.scrollHeight
         }
@@ -25,7 +27,7 @@ export default function Textoutput(props: TextoutputInterface) {
 
     return (
         <div className={textoutputcss.textoutputwrapper} ref={textOutputWrapperRef}>
-            {messageLog.map((chatMessage: ChatMessageInterface, index: number) => {
+            {messageLog?.map((chatMessage: ChatMessageInterface, index: number) => {
                 return (
                     <>
                         <div key={index} className={`${textoutputcss.message} ${textoutputcss[chatMessage.type]}`}>{chatMessage.message}</div>
