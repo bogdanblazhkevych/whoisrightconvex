@@ -1,5 +1,7 @@
+import { useQuery } from 'convex/react';
 import {useState} from 'react';
 import './App.css';
+import { api } from "./convex/_generated/api"
 // import About from './modules/about/about';
 // import Chat from './modules/chat/chat';
 import Join from './modules/join/join';
@@ -19,8 +21,11 @@ interface ChatDataInterface {
 type userType = "guest" | "host"
  
 function App() {
-  const [currentDisplay, setCurrentDisplay] = useState('find-session');
-  const [userType, setUserType] = useState<userType>('guest')
+  // const [currentDisplay, setCurrentDisplay] = useState('find-session');
+  const [sessionId, setSessionId] = useState<string>('');
+  const [userType, setUserType] = useState<userType>('guest');
+
+  const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
 
   const [chatData, setChatData] = useState<ChatDataInterface>({
     sessionId: '',
@@ -36,9 +41,13 @@ function App() {
 
   return (
     <div className="App">
-      {currentDisplay === "find-session" && 
+      {!chatRoomActive && 
       <>
-          <Join setCurrentDisplay={setCurrentDisplay} chatData={chatData} setChatData={setChatData}setUserType={setUserType}/>
+          <Join chatData={chatData} 
+                setChatData={setChatData} 
+                setUserType={setUserType}
+                sessionId={sessionId}
+                setSessionId={setSessionId}/>
       </>
       }
 {/* 
