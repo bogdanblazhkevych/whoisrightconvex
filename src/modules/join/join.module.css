@@ -1,0 +1,21 @@
+.joinwrapper{
+    box-sizing: border-box;
+    /* border: 1px solid purple; */
+    display: flex;
+    max-width: 800px;
+    /* width: 50%; */
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.joinwrapper > button, input {
+    align-self: center;
+}
+
+.chosebuttonwrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 1rem;
+}
