@@ -7,12 +7,14 @@ import Home from "../home/home";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "./../../convex/_generated/api";
 import Displaysessionid from "../displaysessionid/displaysessionid";
+import Entersessionid from "../entersessionid/entersessionid";
 
 interface JoinPropsInterface {
-    setCurrentDisplay: (currentDisplay: string) => void;
     chatData: ChatDataInterface;
     setChatData: (chatData: ChatDataInterface) => void;
     setUserType: (userType: "guest" | "host") => void;
+    setSessionId: React.Dispatch<React.SetStateAction<string>>;
+    sessionId: string,
 }
 
 interface ChatDataInterface {
@@ -29,15 +31,16 @@ interface ChatDataInterface {
 
 export default function Join(props: JoinPropsInterface) {
 
-    const { setCurrentDisplay, setChatData, chatData, setUserType } = props
+    const { setChatData, chatData, setUserType, setSessionId, sessionId } = props
 
     const [currentJoinDisplay, setCurrentJoinDisplay] = useState('home')
     const [displayName, setDisplayName] = useState('')
     const [codeInput, setCodeInput] = useState('')
-    const [joinError, setJoinError] = useState({error: false, errorMessage: ''})
+    const [joinError, setJoinError] = useState({ error: false, errorMessage: '' })
 
-    const getCode = useAction(api.roomactions.getSessionId)
-    const [sessionId, setSessionId] = useState<null | string>(null)
+    const getCode = useAction(api.roomactions.getSessionId);
+    const validateCode = useAction(api.roomactions.validateSessionId);
+    // const [sessionId, setSessionId] = useState<null | string>(null)
 
     async function createSession() {
         if (displayName.length === 0) {
@@ -67,9 +70,23 @@ export default function Join(props: JoinPropsInterface) {
         setDisplayName(e.target.value)
     }
 
-    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    async function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
-            // socket.emit("validate_code", codeInput, displayName)
+            let isValidated = await validateCode({ sessionId: codeInput })
+            if (isValidated.validated) {
+                setSessionId(isValidated.data)
+            } else {
+                setJoinError({
+                    error: true,
+                    errorMessage: isValidated.data
+                })
+                setTimeout(() => {
+                    setJoinError({
+                        error: false,
+                        errorMessage: ''
+                    })
+                }, 1000)
+            }
         }
     }
 
@@ -87,18 +104,18 @@ export default function Join(props: JoinPropsInterface) {
     //     })
 
     //     socket.on("joinError", (errorName) => {
-    //         setJoinError({
-    //             error: true,
-    //             errorMessage: errorName
-    //         })
+    // setJoinError({
+    //     error: true,
+    //     errorMessage: errorName
+    // })
 
-    //         setTimeout(() => {
-    //             setJoinError({
-    //                 error: false,
-    //                 errorMessage: ''
-    //             })
-    //         }, 1000)
+    // setTimeout(() => {
+    //     setJoinError({
+    //         error: false,
+    //         errorMessage: ''
     //     })
+    // }, 1000)
+    // })
 
     //     socket.on('error', (errorName) => {
     //         console.log(errorName)
@@ -109,20 +126,20 @@ export default function Join(props: JoinPropsInterface) {
         <div className={joincss.joinwrapper}>
             {currentJoinDisplay === "home" &&
                 <Home handleDisplayNameInputChange={handleDisplayNameInputChange}
-                      createSession={createSession} 
-                      joinSession={joinSession} 
+                      createSession={createSession}
+                      joinSession={joinSession}
                       displayName={displayName} />
             }
             {currentJoinDisplay === "show-code" &&
                 <Displaysessionid sessionId={sessionId} />
             }
-            {/* {currentJoinDisplay === "enter-code" &&
-                <Entersessionid handleCodeInputChange={handleCodeInputChange} 
-                                handleKeyDown={handleKeyDown} 
-                                codeInput={codeInput} 
+            {currentJoinDisplay === "enter-code" &&
+                <Entersessionid handleCodeInputChange={handleCodeInputChange}
+                                handleKeyDown={handleKeyDown}
+                                codeInput={codeInput}
                                 joinError={joinError}
-                                createSession={createSession}/>
-            } */}
+                                createSession={createSession} />
+            }
         </div>
     )
 }
