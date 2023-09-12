@@ -2,6 +2,8 @@ import { useQuery } from 'convex/react';
 import {useState} from 'react';
 import './App.css';
 import { api } from "./convex/_generated/api"
+import About from './modules/about/about';
+import Chat from './modules/chat/chat';
 // import About from './modules/about/about';
 // import Chat from './modules/chat/chat';
 import Join from './modules/join/join';
@@ -50,13 +52,13 @@ function App() {
                 setSessionId={setSessionId}/>
       </>
       }
-{/* 
-      {currentDisplay === "chatroom" && 
+
+      {chatRoomActive && 
         <>
           <About />
           <Chat chatData={chatData} userType={userType}/>
         </>
-      } */}
+      }
     </div>
   );
 }
