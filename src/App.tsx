@@ -1,24 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import {useState} from 'react';
 import './App.css';
+// import About from './modules/about/about';
+// import Chat from './modules/chat/chat';
+import Join from './modules/join/join';
 
+interface ChatDataInterface {
+  sessionId: string,
+  host: {
+    displayName: string,
+    userId: string
+  }
+  guest: {
+    displayName: string,
+    userId: string
+  }
+}
+
+type userType = "guest" | "host"
+ 
 function App() {
+  const [currentDisplay, setCurrentDisplay] = useState('find-session');
+  const [userType, setUserType] = useState<userType>('guest')
+
+  const [chatData, setChatData] = useState<ChatDataInterface>({
+    sessionId: '',
+    host: {
+      displayName: '',
+      userId: ''
+    },
+    guest: {
+      displayName: '',
+      userId: ''
+    }
+  })
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {currentDisplay === "find-session" && 
+      <>
+          <Join setCurrentDisplay={setCurrentDisplay} chatData={chatData} setChatData={setChatData}setUserType={setUserType}/>
+      </>
+      }
+{/* 
+      {currentDisplay === "chatroom" && 
+        <>
+          <About />
+          <Chat chatData={chatData} userType={userType}/>
+        </>
+      } */}
     </div>
   );
 }
