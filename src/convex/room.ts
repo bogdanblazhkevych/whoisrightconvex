@@ -1,55 +1,89 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { convexToJson, v } from "convex/values";
 
 export const addSessionId = mutation({
     args: { sessionId: v.string() },
-    handler: async (ctx, {sessionId}) => {
-        let open = true;
-        await ctx.db.insert("rooms", {sessionId, open});
+    handler: async (ctx, { sessionId }) => {
+        await ctx.db.insert("rooms", { sessionId });
     }
 })
 
-export const monitorRoom = query({
+export const isChatRoomActive = query({
     args: { sessionId: v.string() },
     handler: async (ctx, { sessionId }) => {
-        //get the room itsm from it's session id
-        try {
-            const room = await ctx.db.query('rooms').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
-            if (room.length !== 0 && !room[0].open) {
-                return true
-            } else {
-                return false
-            }
-        } catch (error) {
+        //get users array that have the sessionId attribute
+        const usersInRoom = await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
+        if (usersInRoom.length === 2) {
+            return true
+        } else {
+            return false
+        }
+    }
+})
+export const isRoomOpen = query({
+    args: { sessionId: v.string() },
+    handler: async (ctx, { sessionId }) => {
+        //get users array that have the sessionId attribute
+        const usersInRoom = await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect()
+        if (usersInRoom.length === 1) {
+            return true
+        } else {
             return false
         }
     }
 })
 
-export const findRoom = query({
-    args: { sessionId: v.string() },
-    handler: async (ctx, { sessionId }) => {
-        //get the room itsm from it's session id
-        const room = await ctx.db.query('rooms').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect()
-        //perform checks on the room
-        if (room.length === 0) {
-            throw new Error("room does not exist")
-        } else if (!room[0].open) {
-            throw new Error("room is full")
-        } else {
-            return room[0].open
+export const addMessage = mutation({
+    args: { sessionId: v.string(), userId: v.string(), message: v.string() },
+    handler: async (ctx, { sessionId, userId, message }) => {
+        //insert message into messages table
+        await ctx.db.insert("messages", { sessionId, userId, message });
+    }
+})
+
+export const messages = query({
+    args: { sessionId: v.string(), displayName: v.string() },
+    handler: async (ctx, { sessionId, displayName }) => {
+        //get messages
+        const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
+
+        let messagesWithDisplayName = messages.map(async (message) => {
+            //get user who sent message
+            const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
+            if (user?.displayName === displayName) {
+                return { ...message, type: "outgoing", displayName: user.displayName }
+            } else {
+                return { ...message, type: "incomming", displayName: user?.displayName }
+            }
+        })
+        
+        try {
+            let messagesToClientSchema = Promise.all(messagesWithDisplayName);
+            return messagesToClientSchema
+        } catch (error) {
+            //TODO handle error:
+            console.log("please dont :(")   
         }
     }
 })
 
-export const closeRoom = mutation({
+export const addUser = mutation({
+    args: { displayName: v.string(), sessionId: v.string() },
+    handler: async (ctx, { displayName, sessionId }) => {
+        return await ctx.db.insert("users", { displayName, sessionId });
+    }
+})
+
+export const getRoomInfo = query({
     args: { sessionId: v.string() },
-    handler: async (ctx, { sessionId }) => {   
-        //get the room item from it's session id
-        const room = await ctx.db.query("rooms").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
-        //get the room's _id attirbute because its needed to patch
-        const _id = room[0]._id;
-        //set the open attribute of the room to false
-        await ctx.db.patch(_id, { open: false })
+    handler: async (ctx, { sessionId }) => {
+        const userItemsInRoom = await ctx.db.query("users").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect()
+        const usersInRoom = userItemsInRoom.map((user) => {
+            return user.displayName
+        });
+        return {
+            sessionId: sessionId,
+            users: usersInRoom
+        }
     }
 })

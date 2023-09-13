@@ -15,6 +15,10 @@ interface JoinPropsInterface {
     setUserType: (userType: "guest" | "host") => void;
     setSessionId: React.Dispatch<React.SetStateAction<string>>;
     sessionId: string,
+    displayName: string,
+    setDisplayName: React.Dispatch<React.SetStateAction<string>>;
+    userId: string,
+    setUserId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface ChatDataInterface {
@@ -31,10 +35,10 @@ interface ChatDataInterface {
 
 export default function Join(props: JoinPropsInterface) {
 
-    const { setChatData, chatData, setUserType, setSessionId, sessionId } = props
+    const { setChatData, chatData, setUserType, setSessionId, sessionId, displayName, setDisplayName, userId, setUserId} = props
 
     const [currentJoinDisplay, setCurrentJoinDisplay] = useState('home')
-    const [displayName, setDisplayName] = useState('')
+    // const [displayName, setDisplayName] = useState('')
     const [codeInput, setCodeInput] = useState('')
     const [joinError, setJoinError] = useState({ error: false, errorMessage: '' })
 
@@ -47,8 +51,9 @@ export default function Join(props: JoinPropsInterface) {
             return
         }
         setUserType('host')
-        let code = await getCode()
-        setSessionId(code)
+        let codeData = await getCode({ displayName: displayName })
+        setSessionId(codeData.sessionId)
+        setUserId(codeData.userId)
         setCurrentJoinDisplay("show-code")
     }
 
@@ -72,13 +77,15 @@ export default function Join(props: JoinPropsInterface) {
 
     async function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
-            let isValidated = await validateCode({ sessionId: codeInput })
-            if (isValidated.validated) {
-                setSessionId(isValidated.data)
+            let isValidated = await validateCode({ sessionId: codeInput, displayName: displayName })
+            console.log("is validated::: ", isValidated)
+            if (isValidated.validated && isValidated.sessionId) {
+                setSessionId(isValidated.sessionId);
+                setUserId(isValidated.userId)
             } else {
                 setJoinError({
                     error: true,
-                    errorMessage: isValidated.data
+                    errorMessage: isValidated.error
                 })
                 setTimeout(() => {
                     setJoinError({

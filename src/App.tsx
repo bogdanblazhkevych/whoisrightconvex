@@ -24,10 +24,13 @@ type userType = "guest" | "host"
  
 function App() {
   // const [currentDisplay, setCurrentDisplay] = useState('find-session');
-  const [sessionId, setSessionId] = useState<string>('');
   const [userType, setUserType] = useState<userType>('guest');
-
-  const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
+  
+  const [sessionId, setSessionId] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [userId, setUserId] = useState('');
+  // const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
+  const isChatRoomActive = useQuery(api.room.isChatRoomActive, {sessionId: sessionId})
 
   const [chatData, setChatData] = useState<ChatDataInterface>({
     sessionId: '',
@@ -43,20 +46,28 @@ function App() {
 
   return (
     <div className="App">
-      {!chatRoomActive && 
+      {!isChatRoomActive && 
       <>
           <Join chatData={chatData} 
                 setChatData={setChatData} 
                 setUserType={setUserType}
                 sessionId={sessionId}
-                setSessionId={setSessionId}/>
+                setSessionId={setSessionId}
+                displayName={displayName}
+                setDisplayName={setDisplayName}
+                userId={userId}
+                setUserId={setUserId}/>
       </>
       }
 
-      {chatRoomActive && 
+      {isChatRoomActive && 
         <>
           <About />
-          <Chat chatData={chatData} userType={userType}/>
+          <Chat chatData={chatData} 
+                userType={userType}
+                sessionId={sessionId}
+                displayName={displayName}
+                userId={userId}/>
         </>
       }
     </div>
