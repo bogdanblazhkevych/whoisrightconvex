@@ -29,34 +29,36 @@ export const getSessionId = action({
 
 export const validateSessionId = action({
     args: { sessionId: v.string(), displayName: v.string() },
-    handler: async (ctx, { sessionId, displayName }) => {
+    handler: async (ctx, {sessionId, displayName}) => {
         try {
-            //check if room is open / valic
-            const isRoomOpen = await ctx.runQuery(api.room.findRoom, {
-                sessionId: sessionId
-            });
-            //closes room if room is valid
-            await ctx.runMutation(api.room.closeRoom, {
+            const isRoomOpen = await ctx.runQuery(api.room.isRoomOpen, {
                 sessionId: sessionId
             })
-            //adds user to user table
-            let userId: string = await ctx.runMutation(api.room.addUser, {
-                displayName: displayName,
-                sessionId: sessionId
-            })
-            //add display name to room participants array
-            return {
-                validated: true,
-                sessionId: sessionId,
-                userId: userId,
-                error: "no errors"
+            if (isRoomOpen) {
+                //add user
+                let userId: string = await ctx.runMutation(api.room.addUser, {
+                    displayName: displayName,
+                    sessionId: sessionId
+                })
+                //return data
+                return {
+                    validated: true,
+                    sessionId: sessionId,
+                    userId: userId,
+                    error: "no errors"
+                }
+            } else {
+                //return data
+                return {
+                    validated: false,
+                    error: "room is full or can not be found"
+                }
             }
         } catch (error) {
+            //return data
             return {
                 validated: false,
-                sessionId: 'no session id',
-                userId: 'no user id',
-                error: "something went wrong"
+                error: "room is full or can not be found"
             }
         }
     }

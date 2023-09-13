@@ -11,7 +11,7 @@ interface ChatMessageInterface {
 
 interface TextoutputInterface {
     // messageLog: ChatMessageInterface[];
-    messageLog: any[] | undefined;
+    messageLog: any[] | null | undefined
 }
 
 export default function Textoutput(props: TextoutputInterface) {

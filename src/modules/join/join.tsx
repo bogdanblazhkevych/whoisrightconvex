@@ -78,7 +78,8 @@ export default function Join(props: JoinPropsInterface) {
     async function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
             let isValidated = await validateCode({ sessionId: codeInput, displayName: displayName })
-            if (isValidated.validated) {
+            console.log("is validated::: ", isValidated)
+            if (isValidated.validated && isValidated.sessionId) {
                 setSessionId(isValidated.sessionId);
                 setUserId(isValidated.userId)
             } else {

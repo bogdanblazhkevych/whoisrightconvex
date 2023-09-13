@@ -29,7 +29,8 @@ function App() {
   const [sessionId, setSessionId] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [userId, setUserId] = useState('');
-  const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
+  // const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
+  const isChatRoomActive = useQuery(api.room.isChatRoomActive, {sessionId: sessionId})
 
   const [chatData, setChatData] = useState<ChatDataInterface>({
     sessionId: '',
@@ -45,7 +46,7 @@ function App() {
 
   return (
     <div className="App">
-      {!chatRoomActive && 
+      {!isChatRoomActive && 
       <>
           <Join chatData={chatData} 
                 setChatData={setChatData} 
@@ -59,7 +60,7 @@ function App() {
       </>
       }
 
-      {chatRoomActive && 
+      {isChatRoomActive && 
         <>
           <About />
           <Chat chatData={chatData} 

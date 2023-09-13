@@ -5,7 +5,6 @@ import chatcss from "./chat.module.css"
 import ChatDetails from "../chatdetails/chatdetails";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-// import socket from './../../socket'
 
 interface ChatMessageInterface {
     message: string,
@@ -47,7 +46,6 @@ export default function Chat(props: ChatPropsInterface){
         addMessage({
             sessionId: sessionId,
             userId: userId,
-            displayName: displayName,
             message: message
         })
     }
