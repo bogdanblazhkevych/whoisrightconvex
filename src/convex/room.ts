@@ -38,6 +38,12 @@ export const addMessage = mutation({
     handler: async (ctx, { sessionId, userId, message }) => {
         //insert message into messages table
         await ctx.db.insert("messages", { sessionId, userId, message });
+
+        //get all messages
+
+        //get all user messages (no gpt responses)
+
+        //if user messages even, call mediator and pass all messages
     }
 })
 
@@ -46,7 +52,7 @@ export const messages = query({
     handler: async (ctx, { sessionId, displayName }) => {
         //get messages
         const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
-
+        console.log(messages)
         let messagesWithDisplayName = messages.map(async (message) => {
             //get user who sent message
             const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
