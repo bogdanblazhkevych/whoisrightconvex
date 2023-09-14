@@ -14,9 +14,16 @@ export const addSessionId = mutation({
     }
 })
 
-async function getUsersInSession(ctx: GenericQueryCtx<DataModel>, sessionId: string) {
-    return await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
-}
+//make isChatRoomActive and isChatRoomOpen into one function that returns
+//the amount of users in a chatroom and handle the logic where it's needed?
+
+export const getChatRoomUserCount = query({
+    args: sessionIDValidaton,
+    handler: async (ctx, {sessionId}) => {
+        const usersInRoom = await getUsersInSession(ctx, sessionId);
+        return usersInRoom.length
+    }
+})
 
 export const isChatRoomActive = query({
     args: sessionIDValidaton,
@@ -27,7 +34,7 @@ export const isChatRoomActive = query({
     }
 })
 
-export const isRoomOpen = query({
+export const isChatRoomOpen = query({
     args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
         //get users array that have the sessionId attribute
@@ -37,7 +44,7 @@ export const isRoomOpen = query({
 })
 
 export const addMessage = mutation({
-    args: { ...sessionIDValidaton, userId: v.string(), message: v.string(), displayName: v.string() },
+    args: { ...sessionIDValidaton, userId: v.union(v.id("users"), v.string()), message: v.string(), displayName: v.string() },
     handler: async (ctx, { sessionId, userId, message, displayName }) => {
         //insert message into messages table
         //probably need some validation
@@ -45,8 +52,10 @@ export const addMessage = mutation({
 
         //get all messages 
         const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
+        //deciding wether or not mediator should send a message
         if (messages.length % 3 === 0) {
-            const messagesWithDisplayNameAndType = await getMessagesWithDisplayNameAndType(ctx, messages, displayName);
+            //gets additional attributes for messages because gpt needs a "name"
+            const messagesWithDisplayNameAndType = await mapMessagesToIncludeDisplayNameAndType(ctx, messages, displayName);
             await ctx.scheduler.runAfter(0, api.mediator.chat, {
                 messages: messagesWithDisplayNameAndType
             });
@@ -61,34 +70,14 @@ export const messages = query({
         //get messages
         const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
         //add display name and type: "outgoing" | "incomming" to messages before sending to client
-        return await getMessagesWithDisplayNameAndType(ctx, messages, displayName)
+        return await mapMessagesToIncludeDisplayNameAndType(ctx, messages, displayName)
     }
 })
-
-async function getMessagesWithDisplayNameAndType(ctx: GenericQueryCtx<DataModel>, messages: any[], displayName: string) {
-    let messagesWithDisplayNameAndType = Promise.all(
-        messages.map(async (message) => {
-            //get user who sent message
-            const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
-            
-            //add type to message
-            let type;
-    
-            if (user?.displayName === displayName) {
-                type = 'outgoing';
-            } else {
-                type = 'incomming';
-            }
-    
-            return { ...message, type, displayName: user?.displayName ?? "Mediator" };
-        })
-    )
-    return messagesWithDisplayNameAndType;
-}
 
 export const addUser = mutation({
     args: { displayName: v.string(), ...sessionIDValidaton },
     handler: async (ctx, { displayName, sessionId }) => {
+        //adds a user to the db
         return await ctx.db.insert("users", { displayName, sessionId });
     }
 })
@@ -106,3 +95,33 @@ export const getRoomInfo = query({
         }
     }
 })
+
+async function getUsersInSession(ctx: GenericQueryCtx<DataModel>, sessionId: string) {
+    return await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
+}
+
+async function mapMessagesToIncludeDisplayNameAndType(ctx: GenericQueryCtx<DataModel>, messages: any[], displayName: string) {
+    let messagesWithDisplayNameAndType = Promise.all(
+        messages.map(async (message) => {
+            //get user who sent message
+            const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
+            //add type to message
+
+            let type;
+            
+            if (!user) {
+                type = "Mediator";
+                return { ...message, type, displayName: "Mediator" };
+            } else if (user.displayName === displayName) {
+                type = 'outgoing';
+            } else {
+                type = 'incomming';
+            }
+
+            return { ...message, type, displayName: user.displayName ?? "Mediator" };
+        })
+    )
+    return messagesWithDisplayNameAndType;
+}
+
+// getMessagesWithDisplayNameAndType

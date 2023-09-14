@@ -31,10 +31,9 @@ export const validateSessionId = action({
     args: { sessionId: v.string(), displayName: v.string() },
     handler: async (ctx, {sessionId, displayName}) => {
         try {
-            const isRoomOpen = await ctx.runQuery(api.room.isRoomOpen, {
-                sessionId: sessionId
-            })
-            if (isRoomOpen) {
+            const getChatRoomUserCount = await ctx.runQuery(api.room.getChatRoomUserCount, { sessionId: sessionId });
+            //room is only joinable if there is one other user in the room
+            if (getChatRoomUserCount === 1) {
                 //add user
                 let userId: string = await ctx.runMutation(api.room.addUser, {
                     displayName: displayName,
