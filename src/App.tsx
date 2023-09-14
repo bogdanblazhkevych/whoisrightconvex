@@ -1,73 +1,41 @@
 import { useQuery } from 'convex/react';
-import {useState} from 'react';
+import { useState } from 'react';
 import './App.css';
 import { api } from "./convex/_generated/api"
 import About from './modules/about/about';
 import Chat from './modules/chat/chat';
-// import About from './modules/about/about';
-// import Chat from './modules/chat/chat';
 import Join from './modules/join/join';
 
-interface ChatDataInterface {
-  sessionId: string,
-  host: {
-    displayName: string,
-    userId: string
-  }
-  guest: {
-    displayName: string,
-    userId: string
-  }
+export interface TestChatRoomDataInterface {
+  userType: "guest" | "host" | '';
+  sessionId: string;
+  displayName: string;
+  userId: string;
 }
-
-type userType = "guest" | "host"
  
 function App() {
-  // const [currentDisplay, setCurrentDisplay] = useState('find-session');
-  const [userType, setUserType] = useState<userType>('guest');
-  
-  const [sessionId, setSessionId] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [userId, setUserId] = useState('');
-  // const chatRoomActive = useQuery(api.room.monitorRoom, {sessionId: sessionId})
-  const isChatRoomActive = useQuery(api.room.isChatRoomActive, {sessionId: sessionId})
-
-  const [chatData, setChatData] = useState<ChatDataInterface>({
+  const [testChatRoomData, setTestChatRoomData] = useState<TestChatRoomDataInterface>({
+    userType: '',
     sessionId: '',
-    host: {
-      displayName: '',
-      userId: ''
-    },
-    guest: {
-      displayName: '',
-      userId: ''
-    }
+    displayName: '',
+    userId: ''
   })
+  
+  const getChatRoomUserCount = useQuery(api.room.getChatRoomUserCount, {sessionId: testChatRoomData.sessionId}) ?? 0
 
   return (
     <div className="App">
-      {!isChatRoomActive && 
+      {getChatRoomUserCount !== 2 && 
       <>
-          <Join chatData={chatData} 
-                setChatData={setChatData} 
-                setUserType={setUserType}
-                sessionId={sessionId}
-                setSessionId={setSessionId}
-                displayName={displayName}
-                setDisplayName={setDisplayName}
-                userId={userId}
-                setUserId={setUserId}/>
+          <Join testChatRoomData={testChatRoomData}
+                setTestChatRoomData={setTestChatRoomData}/>
       </>
       }
 
-      {isChatRoomActive && 
+      {getChatRoomUserCount === 2 && 
         <>
           <About />
-          <Chat chatData={chatData} 
-                userType={userType}
-                sessionId={sessionId}
-                displayName={displayName}
-                userId={userId}/>
+          <Chat testChatRoomData={testChatRoomData}/>
         </>
       }
     </div>

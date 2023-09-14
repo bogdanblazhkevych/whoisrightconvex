@@ -31,14 +31,20 @@ export const validateSessionId = action({
     args: { sessionId: v.string(), displayName: v.string() },
     handler: async (ctx, {sessionId, displayName}) => {
         try {
-            const isRoomOpen = await ctx.runQuery(api.room.isRoomOpen, {
-                sessionId: sessionId
-            })
-            if (isRoomOpen) {
+            const getChatRoomUserCount = await ctx.runQuery(api.room.getChatRoomUserCount, { sessionId: sessionId });
+            //room is only joinable if there is one other user in the room
+            if (getChatRoomUserCount === 1) {
                 //add user
                 let userId: string = await ctx.runMutation(api.room.addUser, {
                     displayName: displayName,
                     sessionId: sessionId
+                })
+                //add initial message
+                await ctx.runMutation(api.room.addMessage, {
+                    sessionId: sessionId,
+                    userId: "Mediator", 
+                    message: "greetings! what can I resolve today",
+                    displayName: "Mediator"
                 })
                 //return data
                 return {
@@ -51,6 +57,8 @@ export const validateSessionId = action({
                 //return data
                 return {
                     validated: false,
+                    sessionId: '',
+                    userId: '',
                     error: "room is full or can not be found"
                 }
             }
@@ -58,7 +66,9 @@ export const validateSessionId = action({
             //return data
             return {
                 validated: false,
-                error: "room is full or can not be found"
+                sessionId: '',
+                    userId: '',
+                    error: "room is full or can not be found"
             }
         }
     }

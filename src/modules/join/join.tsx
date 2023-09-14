@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import joincss from "./join.module.css"
-// import socket from './../../socket'
-// import Displaysessionid from "../displaysessionid/displaysessionid";
-// import Entersessionid from "../entersessionid/entersessionid";
 import Home from "../home/home";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "./../../convex/_generated/api";
 import Displaysessionid from "../displaysessionid/displaysessionid";
 import Entersessionid from "../entersessionid/entersessionid";
+import { TestChatRoomDataInterface } from './../../App'
 
 interface JoinPropsInterface {
-    chatData: ChatDataInterface;
-    setChatData: (chatData: ChatDataInterface) => void;
-    setUserType: (userType: "guest" | "host") => void;
-    setSessionId: React.Dispatch<React.SetStateAction<string>>;
-    sessionId: string,
-    displayName: string,
-    setDisplayName: React.Dispatch<React.SetStateAction<string>>;
-    userId: string,
-    setUserId: React.Dispatch<React.SetStateAction<string>>;
+    // chatData: ChatDataInterface;
+    // setChatData: (chatData: ChatDataInterface) => void;
+    // setUserType: (userType: "guest" | "host") => void;
+    // setSessionId: React.Dispatch<React.SetStateAction<string>>;
+    // sessionId: string;
+    // displayName: string,
+    // setDisplayName: React.Dispatch<React.SetStateAction<string>>;
+    // userId: string;
+    // setUserId: React.Dispatch<React.SetStateAction<string>>;
+    testChatRoomData: TestChatRoomDataInterface;
+    setTestChatRoomData: React.Dispatch<React.SetStateAction<TestChatRoomDataInterface>>
 }
 
 interface ChatDataInterface {
@@ -35,12 +35,14 @@ interface ChatDataInterface {
 
 export default function Join(props: JoinPropsInterface) {
 
-    const { setChatData, chatData, setUserType, setSessionId, sessionId, displayName, setDisplayName, userId, setUserId} = props
+    // const { setChatData, chatData, setUserType, setSessionId, sessionId, userId, setUserId, testChatRoomData, setTestChatRoomData} = props
+    const { testChatRoomData, setTestChatRoomData} = props
 
     const [currentJoinDisplay, setCurrentJoinDisplay] = useState('home')
     // const [displayName, setDisplayName] = useState('')
     const [codeInput, setCodeInput] = useState('')
     const [joinError, setJoinError] = useState({ error: false, errorMessage: '' })
+    const [displayName, setDisplayName] = useState('')
 
     const getCode = useAction(api.roomactions.getSessionId);
     const validateCode = useAction(api.roomactions.validateSessionId);
@@ -50,10 +52,19 @@ export default function Join(props: JoinPropsInterface) {
         if (displayName.length === 0) {
             return
         }
-        setUserType('host')
+        // setUserType('host')
         let codeData = await getCode({ displayName: displayName })
-        setSessionId(codeData.sessionId)
-        setUserId(codeData.userId)
+        setTestChatRoomData((prevTestChatRoomData) => {
+            return {
+                ...prevTestChatRoomData,
+                sessionId: codeData.sessionId,
+                userId: codeData.userId,
+                userType: "host",
+                displayName: displayName
+            }
+        })
+        // setSessionId(codeData.sessionId)
+        // setUserId(codeData.userId)
         setCurrentJoinDisplay("show-code")
     }
 
@@ -61,7 +72,13 @@ export default function Join(props: JoinPropsInterface) {
         if (displayName.length === 0) {
             return
         }
-        setUserType('guest')
+        setTestChatRoomData((prevTestChatRoomData) => {
+            return {
+                ...prevTestChatRoomData,
+                userType: "guest"
+            }
+        })
+        // setUserType('guest')
         setCurrentJoinDisplay('enter-code')
     }
 
@@ -80,8 +97,16 @@ export default function Join(props: JoinPropsInterface) {
             let isValidated = await validateCode({ sessionId: codeInput, displayName: displayName })
             console.log("is validated::: ", isValidated)
             if (isValidated.validated && isValidated.sessionId) {
-                setSessionId(isValidated.sessionId);
-                setUserId(isValidated.userId)
+                setTestChatRoomData((prevTestChatRoomData) => {
+                    return {
+                        ...prevTestChatRoomData,
+                        sessionId: isValidated.sessionId,
+                        userId: isValidated.userId,
+                        displayName: displayName
+                    }
+                })
+                // setSessionId(isValidated.sessionId);
+                // setUserId(isValidated.userId)
             } else {
                 setJoinError({
                     error: true,
@@ -97,38 +122,6 @@ export default function Join(props: JoinPropsInterface) {
         }
     }
 
-    // useEffect(() => {
-    //     socket.on("code_generated", (code) => {
-    //         setChatData({ ...chatData, sessionId: code })
-    //         setCurrentJoinDisplay("show-code")
-    //         console.log("code generated: ", code)
-    //     })
-
-    //     socket.on("all_users_validated", (chatData) => {
-    //         console.log(chatData)
-    //         setChatData(chatData)
-    //         setCurrentDisplay('chatroom')
-    //     })
-
-    //     socket.on("joinError", (errorName) => {
-    // setJoinError({
-    //     error: true,
-    //     errorMessage: errorName
-    // })
-
-    // setTimeout(() => {
-    //     setJoinError({
-    //         error: false,
-    //         errorMessage: ''
-    //     })
-    // }, 1000)
-    // })
-
-    //     socket.on('error', (errorName) => {
-    //         console.log(errorName)
-    //     })
-    // }, [socket])
-
     return (
         <div className={joincss.joinwrapper}>
             {currentJoinDisplay === "home" &&
@@ -138,7 +131,7 @@ export default function Join(props: JoinPropsInterface) {
                       displayName={displayName} />
             }
             {currentJoinDisplay === "show-code" &&
-                <Displaysessionid sessionId={sessionId} />
+                <Displaysessionid sessionId={testChatRoomData.sessionId} />
             }
             {currentJoinDisplay === "enter-code" &&
                 <Entersessionid handleCodeInputChange={handleCodeInputChange}

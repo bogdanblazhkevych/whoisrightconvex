@@ -52,7 +52,7 @@
     border-radius: 20px 20px 20px 0px;
 }
 
-.mediator{
+.Mediator{
     background-color: var(--text-purple-color);
     color: var(--text-color);
     align-self: flex-start;
@@ -81,7 +81,7 @@
     text-align: right;
 }
 
-.sendermediator{
+.senderMediator{
     text-align: left;
 }
 

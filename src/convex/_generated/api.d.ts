@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as mediator from "../mediator";
 import type * as room from "../room";
 import type * as roomactions from "../roomactions";
 
@@ -26,6 +27,7 @@ import type * as roomactions from "../roomactions";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  mediator: typeof mediator;
   room: typeof room;
   roomactions: typeof roomactions;
 }>;
