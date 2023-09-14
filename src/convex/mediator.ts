@@ -5,8 +5,6 @@ import { api } from "./_generated/api";
 import { v, Validator } from "convex/values";
 import { addSessionId } from './room';
 
-
-// Initialize the OpenAI client with the given API key
 const apiKey = process.env.OPENAI_API_KEY!;
 const openai = new OpenAI({
   apiKey: apiKey
@@ -20,14 +18,15 @@ export const chat = action({
     let messagesToMediatorSchema = messages.map((message) => {
         let mediatorSchemaMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
             role: message.userId === 'Mediator' ? 'assistant' : 'user',
-            name: message.userId === 'Mediator' ? 'Mediator' : message.displayName,
+            //spaces in name property are not supported and will throw an error
+            name: message.userId === 'Mediator' ? 'Mediator' : message.displayName.replace(/ /g, '_'),
             content: message.message
         }
         return mediatorSchemaMessage
     })
 
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // "gpt-4" also works, but is so slow!
+      model: "gpt-3.5-turbo",
       messages: [
         {
             role: "system",
@@ -47,10 +46,8 @@ export const chat = action({
       ]
     });
 
-    // Pull the message content out of the response
     const responseContent = response.choices[0].message?.content;
 
-    // Send GPT's response as a new message
     await ctx.runMutation(api.room.addMessage, {
       sessionId: messages[0].sessionId,
       userId: 'Mediator',

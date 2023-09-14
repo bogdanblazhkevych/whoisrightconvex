@@ -17,7 +17,8 @@ export const addSessionId = mutation({
 export const getChatRoomUserCount = query({
     args: sessionIDValidaton,
     handler: async (ctx, {sessionId}) => {
-        const usersInRoom = await getUsersInSession(ctx, sessionId);
+        //gets array of users in room
+        const usersInRoom = await getUsersInRoom(ctx, sessionId);
         return usersInRoom.length
     }
 })
@@ -28,7 +29,6 @@ export const addMessage = mutation({
         //insert message into messages table
         //probably need some validation
         await ctx.db.insert("messages", { sessionId, userId, message });
-
         //get all messages 
         const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
         //deciding wether or not mediator should send a message
@@ -39,7 +39,6 @@ export const addMessage = mutation({
                 messages: messagesWithDisplayNameAndType
             });
         }
-
     }
 })
 
@@ -64,18 +63,22 @@ export const addUser = mutation({
 export const getRoomInfo = query({
     args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
-        const userItemsInRoom = await ctx.db.query("users").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect()
-        const usersInRoom = userItemsInRoom.map((user) => {
+        //getting all users in room then mapping to an array of displayNames
+        const userItemsInRoom = await getUsersInRoom(ctx, sessionId);
+        const displayNameList = userItemsInRoom.map((user) => {
             return user.displayName
         });
+        //returning sessionId and displayName array to the client
         return {
             sessionId: sessionId,
-            users: usersInRoom
+            users: displayNameList
         }
     }
 })
 
-async function getUsersInSession(ctx: GenericQueryCtx<DataModel>, sessionId: string) {
+//Helper Functions
+
+async function getUsersInRoom(ctx: GenericQueryCtx<DataModel>, sessionId: string) {
     return await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
 }
 
@@ -85,9 +88,7 @@ async function mapMessagesToIncludeDisplayNameAndType(ctx: GenericQueryCtx<DataM
             //get user who sent message
             const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
             //add type to message
-
             let type;
-            
             if (!user) {
                 type = "Mediator";
                 return { ...message, type, displayName: "Mediator" };
@@ -96,11 +97,8 @@ async function mapMessagesToIncludeDisplayNameAndType(ctx: GenericQueryCtx<DataM
             } else {
                 type = 'incomming';
             }
-
             return { ...message, type, displayName: user.displayName ?? "Mediator" };
         })
     )
     return messagesWithDisplayNameAndType;
 }
-
-// getMessagesWithDisplayNameAndType

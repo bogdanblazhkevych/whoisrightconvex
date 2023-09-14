@@ -57,6 +57,8 @@ export const validateSessionId = action({
                 //return data
                 return {
                     validated: false,
+                    sessionId: '',
+                    userId: '',
                     error: "room is full or can not be found"
                 }
             }
@@ -64,7 +66,9 @@ export const validateSessionId = action({
             //return data
             return {
                 validated: false,
-                error: "room is full or can not be found"
+                sessionId: '',
+                    userId: '',
+                    error: "room is full or can not be found"
             }
         }
     }

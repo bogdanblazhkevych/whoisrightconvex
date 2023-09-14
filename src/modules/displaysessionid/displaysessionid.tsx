@@ -1,7 +1,7 @@
 import displaysessionidcss from './displaysessionid.module.css'
 
 interface DisplaySessionIdPropsInterface {
-    sessionId: string | null;
+    sessionId: string;
 }
 
 export default function Displaysessionid(props: DisplaySessionIdPropsInterface) {

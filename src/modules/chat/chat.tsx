@@ -1,39 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import TextInput from "../textinput/textinput";
 import Textoutput from "../textoutput/textoutput";
 import chatcss from "./chat.module.css"
 import ChatDetails from "../chatdetails/chatdetails";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-
-interface ChatMessageInterface {
-    message: string,
-    sessionId: string,
-    type: string,
-    userId: string,
-    displayName: string
-}
+import { TestChatRoomDataInterface } from './../../App'
 
 interface ChatPropsInterface {
-    chatData: {
-        sessionId: string,
-        host: {
-          displayName: string,
-          userId: string
-        }
-        guest: {
-          displayName: string,
-          userId: string
-        }
-    };
-    userType: "guest" | "host";
-    sessionId: string;
-    displayName: string;
-    userId: string;
+    testChatRoomData: TestChatRoomDataInterface;
 }
 
 export default function Chat(props: ChatPropsInterface){
-    const { userType, sessionId, displayName, userId } = props;
+    const { testChatRoomData } = props;
+    const { sessionId, displayName, userId} = testChatRoomData
     const messages = useQuery(api.room.messages, {sessionId: sessionId, displayName: displayName})
     const addMessage = useMutation(api.room.addMessage)
     const chatData = useQuery(api.room.getRoomInfo, { sessionId })
