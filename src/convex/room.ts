@@ -14,32 +14,11 @@ export const addSessionId = mutation({
     }
 })
 
-//make isChatRoomActive and isChatRoomOpen into one function that returns
-//the amount of users in a chatroom and handle the logic where it's needed?
-
 export const getChatRoomUserCount = query({
     args: sessionIDValidaton,
     handler: async (ctx, {sessionId}) => {
         const usersInRoom = await getUsersInSession(ctx, sessionId);
         return usersInRoom.length
-    }
-})
-
-export const isChatRoomActive = query({
-    args: sessionIDValidaton,
-    handler: async (ctx, { sessionId }) => {
-        //get users array that have the sessionId attribute
-        const usersInRoom = await getUsersInSession(ctx, sessionId);
-        return usersInRoom.length === 2;
-    }
-})
-
-export const isChatRoomOpen = query({
-    args: sessionIDValidaton,
-    handler: async (ctx, { sessionId }) => {
-        //get users array that have the sessionId attribute
-        const usersInRoom = await getUsersInSession(ctx, sessionId);
-        return usersInRoom.length === 1;
     }
 })
 
