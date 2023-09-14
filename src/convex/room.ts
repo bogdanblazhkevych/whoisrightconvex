@@ -1,87 +1,100 @@
 import { mutation, query } from "./_generated/server";
-import { convexToJson, v } from "convex/values";
+import { v } from "convex/values";
+import { api } from "./_generated/api";
+import { GenericQueryCtx } from "convex/server";
+import { DataModel } from "./_generated/dataModel";
+
+const sessionIDValidaton = { sessionId: v.string() } as const;
 
 export const addSessionId = mutation({
-    args: { sessionId: v.string() },
+    args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
+        // Validation?
         await ctx.db.insert("rooms", { sessionId });
     }
 })
 
+async function getUsersInSession(ctx: GenericQueryCtx<DataModel>, sessionId: string) {
+    return await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
+}
+
 export const isChatRoomActive = query({
-    args: { sessionId: v.string() },
+    args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
         //get users array that have the sessionId attribute
-        const usersInRoom = await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
-        if (usersInRoom.length === 2) {
-            return true
-        } else {
-            return false
-        }
+        const usersInRoom = await getUsersInSession(ctx, sessionId);
+        return usersInRoom.length === 2;
     }
 })
+
 export const isRoomOpen = query({
-    args: { sessionId: v.string() },
+    args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
         //get users array that have the sessionId attribute
-        const usersInRoom = await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect()
-        if (usersInRoom.length === 1) {
-            return true
-        } else {
-            return false
-        }
+        const usersInRoom = await getUsersInSession(ctx, sessionId);
+        return usersInRoom.length === 1;
     }
 })
 
 export const addMessage = mutation({
-    args: { sessionId: v.string(), userId: v.string(), message: v.string() },
-    handler: async (ctx, { sessionId, userId, message }) => {
+    args: { ...sessionIDValidaton, userId: v.string(), message: v.string(), displayName: v.string() },
+    handler: async (ctx, { sessionId, userId, message, displayName }) => {
         //insert message into messages table
+        //probably need some validation
         await ctx.db.insert("messages", { sessionId, userId, message });
 
-        //get all messages
+        //get all messages 
+        const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
+        if (messages.length % 3 === 0) {
+            const messagesWithDisplayNameAndType = await getMessagesWithDisplayNameAndType(ctx, messages, displayName);
+            await ctx.scheduler.runAfter(0, api.mediator.chat, {
+                messages: messagesWithDisplayNameAndType
+            });
+        }
 
-        //get all user messages (no gpt responses)
-
-        //if user messages even, call mediator and pass all messages
     }
 })
 
 export const messages = query({
-    args: { sessionId: v.string(), displayName: v.string() },
+    args: { ...sessionIDValidaton, displayName: v.string() },
     handler: async (ctx, { sessionId, displayName }) => {
         //get messages
         const messages = await ctx.db.query("messages").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
-        console.log(messages)
-        let messagesWithDisplayName = messages.map(async (message) => {
-            //get user who sent message
-            const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
-            if (user?.displayName === displayName) {
-                return { ...message, type: "outgoing", displayName: user.displayName }
-            } else {
-                return { ...message, type: "incomming", displayName: user?.displayName }
-            }
-        })
-        
-        try {
-            let messagesToClientSchema = Promise.all(messagesWithDisplayName);
-            return messagesToClientSchema
-        } catch (error) {
-            //TODO handle error:
-            console.log("please dont :(")   
-        }
+        //add display name and type: "outgoing" | "incomming" to messages before sending to client
+        return await getMessagesWithDisplayNameAndType(ctx, messages, displayName)
     }
 })
 
+async function getMessagesWithDisplayNameAndType(ctx: GenericQueryCtx<DataModel>, messages: any[], displayName: string) {
+    let messagesWithDisplayNameAndType = Promise.all(
+        messages.map(async (message) => {
+            //get user who sent message
+            const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
+            
+            //add type to message
+            let type;
+    
+            if (user?.displayName === displayName) {
+                type = 'outgoing';
+            } else {
+                type = 'incomming';
+            }
+    
+            return { ...message, type, displayName: user?.displayName ?? "Mediator" };
+        })
+    )
+    return messagesWithDisplayNameAndType;
+}
+
 export const addUser = mutation({
-    args: { displayName: v.string(), sessionId: v.string() },
+    args: { displayName: v.string(), ...sessionIDValidaton },
     handler: async (ctx, { displayName, sessionId }) => {
         return await ctx.db.insert("users", { displayName, sessionId });
     }
 })
 
 export const getRoomInfo = query({
-    args: { sessionId: v.string() },
+    args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
         const userItemsInRoom = await ctx.db.query("users").filter((q) => q.eq(q.field("sessionId"), sessionId)).collect()
         const usersInRoom = userItemsInRoom.map((user) => {

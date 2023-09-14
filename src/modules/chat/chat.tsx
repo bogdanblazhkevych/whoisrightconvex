@@ -46,7 +46,8 @@ export default function Chat(props: ChatPropsInterface){
         addMessage({
             sessionId: sessionId,
             userId: userId,
-            message: message
+            message: message,
+            displayName: displayName
         })
     }
 

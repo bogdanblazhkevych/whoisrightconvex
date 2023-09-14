@@ -40,6 +40,13 @@ export const validateSessionId = action({
                     displayName: displayName,
                     sessionId: sessionId
                 })
+                //add initial message
+                await ctx.runMutation(api.room.addMessage, {
+                    sessionId: sessionId,
+                    userId: "Mediator", 
+                    message: "greetings! what can I resolve today",
+                    displayName: "Mediator"
+                })
                 //return data
                 return {
                     validated: true,

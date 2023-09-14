@@ -15,9 +15,8 @@ const openai = new OpenAI({
 export const chat = action({
   args: {
     messages: v.array(v.object({_creationTime: v.number(), _id: v.id("messages"), displayName: v.string(), message: v.string(), sessionId: v.string(), type: v.string(), userId: v.string()})),
-    sessionId: v.string(),
   },
-  handler: async (ctx, {messages, sessionId}) => {
+  handler: async (ctx, {messages}) => {
     let messagesToMediatorSchema = messages.map((message) => {
         let mediatorSchemaMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
             role: message.userId === 'Mediator' ? 'assistant' : 'user',
@@ -53,9 +52,10 @@ export const chat = action({
 
     // Send GPT's response as a new message
     await ctx.runMutation(api.room.addMessage, {
-      sessionId: sessionId,
+      sessionId: messages[0].sessionId,
       userId: 'Mediator',
       message: responseContent || "Sorry, I don't have an answer for that.",
+      displayName: "Mediator"
     });
   },
 });
