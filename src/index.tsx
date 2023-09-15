@@ -5,7 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
-const convex = new ConvexReactClient('https://mild-goose-90.convex.cloud');
+const convex = new ConvexReactClient(process.env.REACT_APP_CONVEX_URL as string);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(
 root.render(
   // <React.StrictMode>
     <ConvexProvider client={convex}>
-    <App />
+    <App /> 
     </ConvexProvider>
   // </React.StrictMode>
 );
