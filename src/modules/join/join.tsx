@@ -5,66 +5,37 @@ import { useAction } from "convex/react";
 import { api } from "./../../convex/_generated/api";
 import Displaysessionid from "../displaysessionid/displaysessionid";
 import Entersessionid from "../entersessionid/entersessionid";
-import { TestChatRoomDataInterface } from './../../App'
+import { UserDataInterface } from './../../App'
 
 interface JoinPropsInterface {
-    // chatData: ChatDataInterface;
-    // setChatData: (chatData: ChatDataInterface) => void;
-    // setUserType: (userType: "guest" | "host") => void;
-    // setSessionId: React.Dispatch<React.SetStateAction<string>>;
-    // sessionId: string;
-    // displayName: string,
-    // setDisplayName: React.Dispatch<React.SetStateAction<string>>;
-    // userId: string;
-    // setUserId: React.Dispatch<React.SetStateAction<string>>;
-    testChatRoomData: TestChatRoomDataInterface;
-    setTestChatRoomData: React.Dispatch<React.SetStateAction<TestChatRoomDataInterface>>
-}
-
-interface ChatDataInterface {
-    sessionId: string,
-    host: {
-        displayName: string,
-        userId: string
-    }
-    guest: {
-        displayName: string,
-        userId: string
-    }
+    userData: UserDataInterface;
+    setUserData: React.Dispatch<React.SetStateAction<UserDataInterface>>
 }
 
 export default function Join(props: JoinPropsInterface) {
-
-    // const { setChatData, chatData, setUserType, setSessionId, sessionId, userId, setUserId, testChatRoomData, setTestChatRoomData} = props
-    const { testChatRoomData, setTestChatRoomData} = props
-
-    const [currentJoinDisplay, setCurrentJoinDisplay] = useState('home')
-    // const [displayName, setDisplayName] = useState('')
-    const [codeInput, setCodeInput] = useState('')
-    const [joinError, setJoinError] = useState({ error: false, errorMessage: '' })
+    const { userData, setUserData } = props;
+    // \/ \/ \/ TODO use routing instead of this. same goes for App.tsx
+    const [currentJoinDisplay, setCurrentJoinDisplay] = useState('home');
+    const [codeInput, setCodeInput] = useState('');
     const [displayName, setDisplayName] = useState('')
-
+    const [joinError, setJoinError] = useState({ error: false, errorMessage: '' });
     const getCode = useAction(api.roomactions.getSessionId);
     const validateCode = useAction(api.roomactions.validateSessionId);
-    // const [sessionId, setSessionId] = useState<null | string>(null)
 
     async function createSession() {
+        //TODO: validate that the chosen display name is not empty
         if (displayName.length === 0) {
             return
         }
-        // setUserType('host')
         let codeData = await getCode({ displayName: displayName })
-        setTestChatRoomData((prevTestChatRoomData) => {
+        setUserData((prevUserData) => {
             return {
-                ...prevTestChatRoomData,
+                ...prevUserData,
                 sessionId: codeData.sessionId,
                 userId: codeData.userId,
-                userType: "host",
                 displayName: displayName
             }
         })
-        // setSessionId(codeData.sessionId)
-        // setUserId(codeData.userId)
         setCurrentJoinDisplay("show-code")
     }
 
@@ -72,13 +43,6 @@ export default function Join(props: JoinPropsInterface) {
         if (displayName.length === 0) {
             return
         }
-        setTestChatRoomData((prevTestChatRoomData) => {
-            return {
-                ...prevTestChatRoomData,
-                userType: "guest"
-            }
-        })
-        // setUserType('guest')
         setCurrentJoinDisplay('enter-code')
     }
 
@@ -95,18 +59,15 @@ export default function Join(props: JoinPropsInterface) {
     async function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
             let isValidated = await validateCode({ sessionId: codeInput, displayName: displayName })
-            console.log("is validated::: ", isValidated)
             if (isValidated.validated && isValidated.sessionId) {
-                setTestChatRoomData((prevTestChatRoomData) => {
+                setUserData((prevUserData) => {
                     return {
-                        ...prevTestChatRoomData,
+                        ...prevUserData,
                         sessionId: isValidated.sessionId,
                         userId: isValidated.userId,
                         displayName: displayName
                     }
                 })
-                // setSessionId(isValidated.sessionId);
-                // setUserId(isValidated.userId)
             } else {
                 setJoinError({
                     error: true,
@@ -131,14 +92,14 @@ export default function Join(props: JoinPropsInterface) {
                       displayName={displayName} />
             }
             {currentJoinDisplay === "show-code" &&
-                <Displaysessionid sessionId={testChatRoomData.sessionId} />
+                <Displaysessionid sessionId={userData.sessionId} />
             }
             {currentJoinDisplay === "enter-code" &&
                 <Entersessionid handleCodeInputChange={handleCodeInputChange}
-                                handleKeyDown={handleKeyDown}
-                                codeInput={codeInput}
-                                joinError={joinError}
-                                createSession={createSession} />
+                    handleKeyDown={handleKeyDown}
+                    codeInput={codeInput}
+                    joinError={joinError}
+                    createSession={createSession} />
             }
         </div>
     )

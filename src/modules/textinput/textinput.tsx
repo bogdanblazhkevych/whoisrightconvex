@@ -27,7 +27,6 @@ export default function TextInput(props: TextInputPropsInterface){
             const rowCount = Math.round(currentRowHeight / singleRowHeight);
 
             textArea.rows = rowCount;
-            console.log(`row count    ${rowCount}`)
         }
     }
 
