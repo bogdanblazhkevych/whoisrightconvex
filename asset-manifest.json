@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/whoisrightconvex/static/css/main.f6f22218.css",
+    "main.js": "/whoisrightconvex/static/js/main.cb46a4d6.js",
+    "static/js/787.08f24488.chunk.js": "/whoisrightconvex/static/js/787.08f24488.chunk.js",
+    "index.html": "/whoisrightconvex/index.html",
+    "main.f6f22218.css.map": "/whoisrightconvex/static/css/main.f6f22218.css.map",
+    "main.cb46a4d6.js.map": "/whoisrightconvex/static/js/main.cb46a4d6.js.map",
+    "787.08f24488.chunk.js.map": "/whoisrightconvex/static/js/787.08f24488.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f6f22218.css",
+    "static/js/main.cb46a4d6.js"
+  ]
+}
