@@ -2,8 +2,7 @@
 import OpenAI from 'openai';
 import { action } from "./_generated/server";
 import { api } from "./_generated/api";
-import { v, Validator } from "convex/values";
-import { addSessionId } from './room';
+import { v } from "convex/values";
 
 const apiKey = process.env.OPENAI_API_KEY!;
 const openai = new OpenAI({

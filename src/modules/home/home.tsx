@@ -16,7 +16,7 @@ export default function Home(props: HomePropsInterface) {
             <div className={homecss.chosewrapper}>
                 <div className={homecss.textwrapper}>
                     <div className={homecss.heading}>
-                        ARBITRATOR.AI
+                        WHOISRIGHT.ME
                     </div>
                     <div className={homecss.body}>
                         Ai driven conflict resolution

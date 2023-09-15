@@ -15,8 +15,8 @@
 }
 
 .typefield{
-    /* box-sizing: border-box; */
-    /* border: 1px solid green; */
+    /* box-sizing: border-box;
+    border: 1px solid purple; */
     width: 90%;
     position: relative;
     display: flex;
@@ -65,8 +65,8 @@
 }
 
 .sendbutton{
-    /* box-sizing: border-box; */
-    /* border: 1px solid yellow; */
+    /* box-sizing: border-box;
+    border: 1px solid yellow; */
     position: absolute;
     height: 100%;
     right: 0;
@@ -76,15 +76,18 @@
 }
 
 .arrowicon{
-    /* box-sizing: border-box; */
-    /* border: 1px solid blue; */
+    /* box-sizing: border-box;
+    border: 1px solid blue; */
     font-size: calc(1rem + 16px);
     position: relative;
     color: var(--send-message-icon-color);
     display: flex;
     justify-content: center;
     align-items: center;
+    /* justify-self: flex-start; */
+    align-self: flex-end;
     padding-right: 4px;
+    padding-bottom: 4px;
 }
 
 .arrowicon > svg{

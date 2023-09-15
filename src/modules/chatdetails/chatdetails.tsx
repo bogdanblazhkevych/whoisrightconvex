@@ -25,7 +25,6 @@ export default function ChatDetails(props: ChatDetailsPropsInterface){
     
     const handleClick = () => {
         const currentDisplaySetting = document.documentElement.style.getPropertyValue('--information-display');
-        console.log(currentDisplaySetting)
         if (currentDisplaySetting == "flex") {
             document.documentElement.style.setProperty('--information-display', 'none');
             setInfoHidden(true)
