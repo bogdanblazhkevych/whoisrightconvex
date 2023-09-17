@@ -55,8 +55,8 @@ export default function Chat(props: ChatPropsInterface){
             sessionId: sessionId,
             displayName: displayName
         });
-
-        navigator.sendBeacon(`https://mild-goose-90.convex.site/userDisconnected`, data);
+        const baseURL = process.env.REACT_APP_HTTP_URL
+        navigator.sendBeacon(`${baseURL}/userDisconnected`, data);
     }
 
     return(

@@ -6,7 +6,6 @@ import reportWebVitals from './reportWebVitals';
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 const convex = new ConvexReactClient(process.env.REACT_APP_CONVEX_URL as string);
-
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
