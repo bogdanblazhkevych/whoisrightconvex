@@ -14,13 +14,17 @@ interface ChatPropsInterface {
 export default function Chat(props: ChatPropsInterface){
     const { userData } = props;
     const { sessionId, displayName, userId } = userData
-    const messages = useQuery(api.room.messages, {sessionId: sessionId, displayName: displayName})
+    const messages = useQuery(api.room.messages, {sessionId: sessionId, userId: userId})
     const addMessage = useMutation(api.room.addMessage)
     const chatData = useQuery(api.room.getRoomInfo, { sessionId })
-
+    
     useEffect(() => {
         didUserSendLastMessage()
     })
+    
+    useEffect(() => {
+        window.addEventListener("beforeunload", handleUserDisconnect)
+    }, [])
 
     function sendMessage(message: string) {
         addMessage({
@@ -43,6 +47,16 @@ export default function Chat(props: ChatPropsInterface){
         } else {
             return false
         }
+    }
+
+    function handleUserDisconnect() {
+        const data = JSON.stringify({
+            userId: userId,
+            sessionId: sessionId,
+            displayName: displayName
+        });
+
+        navigator.sendBeacon(`https://mild-goose-90.convex.site/userDisconnected`, data);
     }
 
     return(

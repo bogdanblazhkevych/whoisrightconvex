@@ -13,5 +13,6 @@ export default defineSchema({
     users: defineTable({
         displayName: v.string(),
         sessionId: v.string(),
+        isConnected: v.boolean(),
     })
 })
