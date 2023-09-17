@@ -16,7 +16,6 @@ export const getSessionId = action({
         });
         //adds user to user table
         let userId: string = await ctx.runMutation(api.room.addUser, {
-            isConnected: true,
             displayName: displayName,
             sessionId: sessionId
         })
@@ -37,7 +36,6 @@ export const validateSessionId = action({
             if (getChatRoomUserCount === 1) {
                 //add user
                 let userId: string = await ctx.runMutation(api.room.addUser, {
-                    isConnected: true,
                     displayName: displayName,
                     sessionId: sessionId
                 })

@@ -28,7 +28,7 @@ export const addMessage = mutation({
         //insert message into messages table
         await ctx.db.insert("messages", { sessionId, userId, message });
         //get all messages excluding system messages 
-        const messages = await ctx.db.query("messages").filter((q) => q.and(q.eq(q.field("sessionId"), sessionId), q.neq(q.field("userId"), "system" || "Mediator"))).collect();
+        const messages = await ctx.db.query("messages").filter((q) => q.and(q.eq(q.field("sessionId"), sessionId), q.neq(q.field("userId"), "system"))).collect();
         //deciding whether or not mediator should send a message
         if (messages.length % 3 === 0) {
             //gets additional attributes for messages because gpt needs a "name"
@@ -51,10 +51,10 @@ export const messages = query({
 })
 
 export const addUser = mutation({
-    args: { isConnected: v.boolean(), displayName: v.string(), ...sessionIDValidaton },
-    handler: async (ctx, { isConnected, displayName, sessionId }) => {
+    args: { displayName: v.string(), ...sessionIDValidaton },
+    handler: async (ctx, { displayName, sessionId }) => {
         //adds a user to the db
-        return await ctx.db.insert("users", { isConnected, displayName, sessionId });
+        return await ctx.db.insert("users", { isConnected: true, displayName, sessionId });
     }
 })
 
