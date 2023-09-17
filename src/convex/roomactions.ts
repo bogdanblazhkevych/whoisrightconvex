@@ -43,7 +43,7 @@ export const validateSessionId = action({
                 await ctx.runMutation(api.room.addMessage, {
                     sessionId: sessionId,
                     userId: "Mediator", 
-                    message: "greetings! what can I resolve today",
+                    message: "Greetings! What can I resolve today?",
                     displayName: "Mediator"
                 })
                 //return data
