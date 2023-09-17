@@ -1,9 +1,9 @@
 .homewrapper{
-    box-sizing: border-box;
-    /* border: 1px solid purple; */
+    /* border: 1px solid purple;
+    box-sizing: border-box; */
     display: flex;
     max-width: 800px;
-    width: 50%;
+    /* width: 50%; */
     justify-content: center;
     flex-direction: column;
     align-items: center;
@@ -105,3 +105,9 @@
 .divbutton:hover{
     cursor: pointer
 }
+
+@media screen and (max-width: 480px) {
+    .textwrapper {
+      font-size: 11.8vw;
+    }
+  }

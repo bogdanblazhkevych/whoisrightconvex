@@ -1,6 +1,6 @@
 .joinwrapper{
-    box-sizing: border-box;
-    /* border: 1px solid purple; */
+    /* box-sizing: border-box;
+    border: 1px solid purple; */
     display: flex;
     max-width: 800px;
     /* width: 50%; */
