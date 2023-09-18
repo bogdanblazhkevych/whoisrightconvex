@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as crons from "../crons";
 import type * as http from "../http";
 import type * as httpactions from "../httpactions";
 import type * as mediator from "../mediator";
@@ -29,6 +30,7 @@ import type * as roomactions from "../roomactions";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
   http: typeof http;
   httpactions: typeof httpactions;
   mediator: typeof mediator;

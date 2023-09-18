@@ -2,20 +2,20 @@ import { internalMutation, internalQuery, mutation, query } from "./_generated/s
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { GenericQueryCtx } from "convex/server";
-import { DataModel } from "./_generated/dataModel";
+import { DataModel, TableNames, Doc } from "./_generated/dataModel";
 
 const sessionIDValidaton = { sessionId: v.string() } as const;
 
 export const addSessionId = mutation({
     args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
-       await ctx.db.insert("rooms", { sessionId });
+        await ctx.db.insert("rooms", { sessionId });
     }
 })
 
 export const getChatRoomUserCount = query({
     args: sessionIDValidaton,
-    handler: async (ctx, {sessionId}) => {
+    handler: async (ctx, { sessionId }) => {
         //gets array of users in room
         const usersInRoom = await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
         return usersInRoom.length
@@ -88,8 +88,8 @@ export const getUsersInRoom = internalQuery({
     }
 })
 
-export const deleteRecordsBySessionId = internalMutation({
-    handler: async (ctx, args: { sessionId: string, tableName: "users" | "messages" | "rooms" }) => {
+export const deleteAllRecordsInTableBySessionId = internalMutation({
+    handler: async (ctx, args: { sessionId: string, tableName: TableNames }) => {
         //get list of records that match sessionId
         const { sessionId, tableName } = args
         const records = await ctx.db.query(tableName).filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
@@ -100,26 +100,35 @@ export const deleteRecordsBySessionId = internalMutation({
     }
 })
 
+export const deleteRecordsInTable = internalMutation({
+    handler: async (ctx, args: { tableName: TableNames }) => {
+        const { tableName } = args
+        for (const record of await ctx.db.query(tableName).collect()) {
+            await ctx.db.delete(record._id)
+        }
+    }
+})
+
 //Helper Functions
 
-async function mapMessagesToIncludeDisplayNameAndType(ctx: GenericQueryCtx<DataModel>, messages: any[], userId: string) {
+async function mapMessagesToIncludeDisplayNameAndType(ctx: GenericQueryCtx<DataModel>, messages: Doc<"messages">[], userId: string) {
     let messagesWithDisplayNameAndType = Promise.all(
         messages.map(async (message) => {
             //if a message has a user id thats a user foreign key
             if (message.userId !== "Mediator" && message.userId !== "system") {
                 //get the user reccord of current message
-                const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first();
+                const user = await ctx.db.query("users").filter((q) => q.eq(q.field("_id"), message.userId)).first() as Doc<"users">;
                 //set type to incomming or outgoing
                 let type;
-                if (user?._id == userId) {
+                if (user._id == userId) {
                     type = "outgoing"
                 } else {
                     type = "incomming"
                 }
-                return { ...message, type, displayName: user?.displayName }
+                return { ...message, type, displayName: user.displayName }
             } else {
                 //display name and type are the same as user id
-                return { ...message, type: message.userId, displayName: message.userId}
+                return { ...message, type: message.userId, displayName: message.userId }
             }
         })
     )
