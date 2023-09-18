@@ -39,7 +39,11 @@ export default function TextInput(props: TextInputPropsInterface){
     }
 
     function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>):void {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter" && e.shiftKey) {
+            setMessage((prevMessage) => {
+                return prevMessage + '\n'
+            })
+        } else if (e.key === 'Enter') {
             e.preventDefault()
             sendMessageWrapper()
         }
