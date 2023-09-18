@@ -6,11 +6,12 @@ interface ChatDetailsPropsInterface {
     chatData: {
         sessionId: string;
         users: any[];
-    } | undefined
+    } | undefined;
+    displayName: string;
 }
 
 export default function ChatDetails(props: ChatDetailsPropsInterface){
-    const { chatData } = props;
+    const { chatData, displayName } = props;
     const [infoHidden, setInfoHidden] = useState<boolean>()
 
     useEffect(() => {
@@ -50,8 +51,13 @@ export default function ChatDetails(props: ChatDetailsPropsInterface){
                         {chatData ? chatData.users[1][0].toUpperCase() : "X"}
                     </div>
                 </div>
-                <div className={chatdetailscss.sessionid}>
-                    {chatData ? chatData.sessionId : "idk"}
+                <div className={chatdetailscss.sessioniddisplaynamewrapper}>
+                    <div className={chatdetailscss.sessionid}>
+                        {chatData ? chatData.sessionId : "idk"}
+                    </div>
+                    <div className={chatdetailscss.displayname}>
+                        {displayName}
+                    </div>
                 </div>
             </div>
         </div>
