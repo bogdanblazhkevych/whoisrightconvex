@@ -1,8 +1,8 @@
 'use node';
 
 import crypto from 'crypto'
-import { action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { action, internalAction, internalMutation } from "./_generated/server";
+import { api, internal } from "./_generated/api";
 import { v } from 'convex/values';
 
 export const getSessionId = action({
@@ -71,6 +71,17 @@ export const validateSessionId = action({
                     error: "room is full or can not be found"
             }
         }
+    }
+})
+
+export const clearAllRecords = internalAction({
+    args: {},
+    handler: async (ctx) => {
+        await Promise.all([
+            ctx.runMutation(internal.room.deleteRecordsInTable, { tableName: "messages" }),
+            ctx.runMutation(internal.room.deleteRecordsInTable, { tableName: "users" }),
+            ctx.runMutation(internal.room.deleteRecordsInTable, { tableName: "rooms" })
+        ])
     }
 })
 

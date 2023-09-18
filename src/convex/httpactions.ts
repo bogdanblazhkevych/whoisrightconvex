@@ -14,12 +14,12 @@ export const userDisconnected = httpAction(async (ctx, request) => {
     //if all users in room are disconnected
     if (usersInRoom.every((user) => !user.isConnected)) {
         //delete all users, rooms, messages related to sessionID
-        await ctx.runMutation(internal.room.deleteRecordsBySessionId, { sessionId: sessionId, tableName: "users"})
-        await ctx.runMutation(internal.room.deleteRecordsBySessionId, { sessionId: sessionId, tableName: "messages"})
-        await ctx.runMutation(internal.room.deleteRecordsBySessionId, { sessionId: sessionId, tableName: "rooms"})
+        await ctx.runMutation(internal.room.deleteAllRecordsInTableBySessionId, { sessionId: sessionId, tableName: "users"})
+        await ctx.runMutation(internal.room.deleteAllRecordsInTableBySessionId, { sessionId: sessionId, tableName: "messages"})
+        await ctx.runMutation(internal.room.deleteAllRecordsInTableBySessionId, { sessionId: sessionId, tableName: "rooms"})
     } else {
         //if other users still in room, notify of disconnect
-        await ctx.runMutation(api.room.addMessage, {displayName: "system", message: `${displayName} had disconnected`, sessionId: sessionId, userId: "system"})
+        await ctx.runMutation(api.room.addMessage, {displayName: "system", message: `${displayName} has disconnected`, sessionId: sessionId, userId: "system"})
     }
 
     return new Response(null, {
