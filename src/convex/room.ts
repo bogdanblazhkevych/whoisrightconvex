@@ -9,13 +9,13 @@ const sessionIDValidaton = { sessionId: v.string() } as const;
 export const addSessionId = mutation({
     args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
-       await ctx.db.insert("rooms", { sessionId });
+        await ctx.db.insert("rooms", { sessionId });
     }
 })
 
 export const getChatRoomUserCount = query({
     args: sessionIDValidaton,
-    handler: async (ctx, {sessionId}) => {
+    handler: async (ctx, { sessionId }) => {
         //gets array of users in room
         const usersInRoom = await ctx.db.query('users').filter((q) => q.eq(q.field('sessionId'), sessionId)).collect();
         return usersInRoom.length
@@ -89,7 +89,7 @@ export const getUsersInRoom = internalQuery({
 })
 
 export const deleteAllRecordsInTableBySessionId = internalMutation({
-    handler: async (ctx, args: { sessionId: string, tableName: "users" | "messages" | "rooms" }) => {
+    handler: async (ctx, args: { sessionId: string, tableName: TableNames }) => {
         //get list of records that match sessionId
         const { sessionId, tableName } = args
         const records = await ctx.db.query(tableName).filter((q) => q.eq(q.field("sessionId"), sessionId)).collect();
@@ -101,7 +101,7 @@ export const deleteAllRecordsInTableBySessionId = internalMutation({
 })
 
 export const deleteRecordsInTable = internalMutation({
-    handler: async (ctx, args: {tableName: TableNames}) => {
+    handler: async (ctx, args: { tableName: TableNames }) => {
         const { tableName } = args
         for (const record of await ctx.db.query(tableName).collect()) {
             await ctx.db.delete(record._id)
@@ -128,7 +128,7 @@ async function mapMessagesToIncludeDisplayNameAndType(ctx: GenericQueryCtx<DataM
                 return { ...message, type, displayName: user.displayName }
             } else {
                 //display name and type are the same as user id
-                return { ...message, type: message.userId, displayName: message.userId}
+                return { ...message, type: message.userId, displayName: message.userId }
             }
         })
     )
