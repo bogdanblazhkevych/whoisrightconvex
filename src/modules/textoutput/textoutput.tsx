@@ -30,12 +30,13 @@ export default function Textoutput(props: TextoutputInterface) {
             {messageLog?.map((chatMessage: ChatMessageInterface, index: number) => {
                 return (
                     <>
-                        <div key={index} className={`${textoutputcss.message} ${textoutputcss[chatMessage.type]}`}>{chatMessage.message}</div>
                         {
                             chatMessage.userId != messageLog[index + 1]?.userId && 
                             chatMessage.type != 'system' &&
+                            chatMessage.type != 'outgoing' &&
                             <div key={`${index}sender`} className={`${textoutputcss.sender} ${textoutputcss[`sender${chatMessage.type}`]}`}>{chatMessage.displayName}</div>
                         }
+                        <div key={index} className={`${textoutputcss.message} ${textoutputcss[chatMessage.type]}`}>{chatMessage.message}</div>
                     </>
                 )
             })}

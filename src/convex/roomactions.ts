@@ -1,7 +1,7 @@
 'use node';
 
 import crypto from 'crypto'
-import { action, internalAction } from "./_generated/server";
+import { action } from "./_generated/server";
 import { api } from "./_generated/api";
 import { v } from 'convex/values';
 

@@ -9,7 +9,7 @@ const sessionIDValidaton = { sessionId: v.string() } as const;
 export const addSessionId = mutation({
     args: sessionIDValidaton,
     handler: async (ctx, { sessionId }) => {
-        await ctx.db.insert("rooms", { sessionId });
+       await ctx.db.insert("rooms", { sessionId });
     }
 })
 

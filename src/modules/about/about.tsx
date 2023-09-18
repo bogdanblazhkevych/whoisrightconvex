@@ -51,7 +51,7 @@ export default function About() {
             </div>
             
             <div className={aboutcss.body}>
-                If you want to raise issuses, bug reports, or ideas, please do so at our <a className={aboutcss.link} href='https://github.com/bogdanblazhkevych/whoisright' about="_blank">GitHub Repository</a>
+                If you want to raise issuses, bug reports, or ideas, please do so at our <a className={aboutcss.link} href='https://github.com/bogdanblazhkevych/whoisrightconvex' about="_blank">GitHub Repository</a>
             </div>
         </div>
     )
