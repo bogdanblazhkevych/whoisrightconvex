@@ -51,7 +51,7 @@ export default function About(props: AboutPropsInterface) {
                     <span style={{ color: "var(--text-color)", fontWeight: 800 }}>Empowerment:</span> <span style={{color:'var(--home-text-color)'}}>WhoIsRight.me empowers you to engage in meaningful conversations, explore different perspectives, and ultimately, find common ground.</span>
                     </li>
                     <li>
-                        <span onClick={handleClick} style={{ color: "var(--text-color)", fontWeight: 800 }}>
+                        <span onClick={handleClick} style={{ color: "var(--text-color)", fontWeight: 800 }} className={aboutcss.colorSchemeSpan}>
                             {
                                 isDarkMode ? "Dark Mode" : "Light Mode"
                             }
