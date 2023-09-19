@@ -16,6 +16,7 @@
   --user-icon-darker-shade: #c1c1c4;
   --user-icon-lighter-shade: #dfdfe0;
   --send-message-icon-color: #148AFF;
+  /* --theme-color: rgb(245,245,245); */
 }
 
 body {
@@ -49,6 +50,6 @@ code {
     --mediator-icon-lighter-shade: #564875;
     --user-icon-darker-shade: #4e4e4e;
     --user-icon-lighter-shade: #6d6d6d;
-
+    /* --theme-color: #1e1e1e; */
   }
 }

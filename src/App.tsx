@@ -1,9 +1,10 @@
 import { useQuery } from 'convex/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { api } from "./convex/_generated/api"
 import About from './modules/about/about';
 import Chat from './modules/chat/chat';
+import { useColorScheme } from './modules/hooks/useColorScheme';
 import Join from './modules/join/join';
 
 export interface UserDataInterface {
@@ -19,7 +20,8 @@ function App() {
     userId: ''
   })
   
-  const getChatRoomUserCount = useQuery(api.room.getChatRoomUserCount, {sessionId: userData.sessionId}) ?? 0
+  const getChatRoomUserCount = useQuery(api.room.getChatRoomUserCount, {sessionId: userData.sessionId}) ?? 0;
+  const [isDarkMode, setIsDarkMode] = useColorScheme()
 
   return (
     <div className="App">
@@ -32,7 +34,7 @@ function App() {
 
       {getChatRoomUserCount === 2 && 
         <>
-          <About />
+          <About isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}/>
           <Chat userData={userData}/>
         </>
       }

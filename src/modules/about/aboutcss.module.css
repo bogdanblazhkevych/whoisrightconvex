@@ -53,6 +53,10 @@ li{
     padding-bottom: var(--spacing);
 }
 
+.colorSchemeSpan:hover{
+    cursor: pointer;
+}
+
 .link{
     text-decoration: none;
     box-sizing: border-box;
